@@ -86,7 +86,8 @@ def xywh2xyxy(x, img_width, img_height):
     y[:, 2] = x[:, 0] + x[:, 2] // 2 # bottom right x
     y[:, 3] = x[:, 1] + x[:, 3] // 2  # bottom right y
 
-    y = y.astype(np.int)
+    # 将 np.int 替换为 int 或 np.int32
+    y = y.astype(float)  # 或者使用 np.int32
 
     y[:, 0] = np.max(np.vstack((y[:, 0], zero_array)),axis=0)  # top left x
     y[:, 1] = np.max(np.vstack((y[:, 1], zero_array)),axis=0)  # top left y

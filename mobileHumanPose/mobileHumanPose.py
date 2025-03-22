@@ -25,8 +25,7 @@ class MobileHumanPose():
     def initialize_model(self, model_path):
 
         self.session = onnxruntime.InferenceSession(model_path,
-                                                    providers=['CUDAExecutionProvider',
-                                                               'CPUExecutionProvider'])
+                                                    providers=['CPUExecutionProvider'])
 
         # Get model info
         self.getModel_input_details()
@@ -44,9 +43,29 @@ class MobileHumanPose():
 
     def prepare_input(self, image, bbox):
 
+        # 检查边界框是否有效
+        x1, y1, x2, y2 = bbox
+        if x1 >= x2 or y1 >= y2 or x1 < 0 or y1 < 0 or x2 > image.shape[1] or y2 > image.shape[0]:
+            print(f"警告：无效的边界框 {bbox}，将进行调整")
+            x1 = max(0, x1)
+            y1 = max(0, y1)
+            x2 = min(image.shape[1], x2)
+            y2 = min(image.shape[0], y2)
+            if x1 >= x2 or y1 >= y2:
+                # 如果边界框仍然无效，使用整个图像
+                x1, y1 = 0, 0
+                x2, y2 = image.shape[1], image.shape[0]
+            bbox = [x1, y1, x2, y2]
+    
         img = crop_image(image, bbox)
+        
+        # 检查裁剪后的图像是否为空
+        if img is None or img.size == 0 or img.shape[0] == 0 or img.shape[1] == 0:
+            print(f"警告：裁剪后的图像为空，使用原始图像")
+            img = image.copy()
+        
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
+        
         self.img_height, self.img_width, self.img_channels = img.shape
         principal_points = [self.img_width/2,  self.img_height/2]
 

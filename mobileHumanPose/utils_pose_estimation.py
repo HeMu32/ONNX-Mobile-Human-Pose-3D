@@ -87,7 +87,7 @@ def vis_3d_multiple_skeleton(kpt_3d, kpt_3d_vis, filename=None):
             if kpt_3d_vis[n,i2,0] > 0:
                 ax.scatter(kpt_3d[n,i2,0], kpt_3d[n,i2,2], -kpt_3d[n,i2,1], color=colors_plt[l], marker='o', s=40)
     #  Hide grid lines
-    ax.w_zaxis.line.set_lw(0.)
+    ax.zaxis.line.set_lw(0.)
     ax.xaxis.pane.fill = False
     ax.xaxis.pane.set_edgecolor('white')
     ax.yaxis.pane.fill = False
@@ -102,10 +102,8 @@ def vis_3d_multiple_skeleton(kpt_3d, kpt_3d_vis, filename=None):
     plt.tight_layout()
 
     fig.canvas.draw()
-    img_3dpos = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8,sep='')
-    img_3dpos = img_3dpos.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-
-# img is rgb, convert to opencv's default bgr
-    img_3dpos = cv2.cvtColor(img_3dpos,cv2.COLOR_RGB2BGR)
+    # 修改获取图像数据的方式
+    img_3dpos = np.asarray(fig.canvas.buffer_rgba())[:, :, :3]
+    img_3dpos = cv2.cvtColor(img_3dpos, cv2.COLOR_RGB2BGR)
 
     return img_3dpos

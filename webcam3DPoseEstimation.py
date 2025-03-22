@@ -17,7 +17,7 @@ pose_model_path='models/mobile_human_pose_working_well_256x256.onnx'
 pose_estimator = MobileHumanPose(pose_model_path, focal_length, principal_points)
 
 # Initialize person detector
-detector_model_path='models/model_float32.onnx' 
+detector_model_path='models/yolov5s.onnx' 
 person_detector = YoloV5s(detector_model_path, conf_thres=0.5, iou_thres=0.4)
 
 # Initialize webcam

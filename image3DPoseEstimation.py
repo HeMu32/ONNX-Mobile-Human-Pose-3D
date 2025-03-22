@@ -7,7 +7,7 @@ from mobileHumanPose.utils_pose_estimation import draw_skeleton, draw_heatmap, v
 
 if __name__ == '__main__':
     
-    draw_detections = False
+    draw_detections = True
 
     # Camera parameters for the deprojection
     # TODO: Correct the deprojection function to properly transform the joints to 3D
@@ -18,11 +18,11 @@ if __name__ == '__main__':
     pose_estimator = MobileHumanPose(pose_model_path, focal_length, principal_points)
 
     # Initialize person detector
-    detector_model_path='models/model_float32.onnx' 
+    detector_model_path='models/yolov5s.onnx' 
     person_detector = YoloV5s(detector_model_path, conf_thres=0.5, iou_thres=0.4)
  
-    # image = cv2.imread("input.jpg")
-    image = imread_from_url("https://static2.diariovasco.com/www/pre2017/multimedia/noticias/201412/01/media/DF0N5391.jpg")
+    image = cv2.imread("R:/u.png")
+    # image = imread_from_url("https://static2.diariovasco.com/www/pre2017/multimedia/noticias/201412/01/media/DF0N5391.jpg")
     
     # Detect people in the image
     boxes, detection_scores = person_detector(image) 
@@ -38,8 +38,9 @@ if __name__ == '__main__':
 
     # Draw detected person bounding boxes 
     pose_img = image.copy()
+    box_img  = image.copy()
     if draw_detections:
-        pose_img = person_detector.draw_detections(pose_img, boxes, detection_scores)
+        box_img = person_detector.draw_detections(box_img, boxes, detection_scores)
 
     # Initialize the represntation images 
     heatmap_viz_img = image.copy()
@@ -68,7 +69,8 @@ if __name__ == '__main__':
     img_3dpos = cv2.resize(img_3dpos[200:-200,150:-150], image.shape[1::-1])
 
     # Combine the images for showing them together
-    combined_img = np.hstack((heatmap_viz_img, pose_img, img_3dpos))
+    # combined_img = np.hstack((heatmap_viz_img, pose_img, img_3dpos))
+    combined_img = np.hstack((box_img, pose_img, img_3dpos))
 
     cv2.imwrite("output.bmp", combined_img)
    

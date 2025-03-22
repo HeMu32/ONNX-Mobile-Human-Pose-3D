@@ -6,7 +6,9 @@ from mobileHumanPose import MobileHumanPose, YoloV5s
 from mobileHumanPose.utils_pose_estimation import draw_skeleton, draw_heatmap, vis_3d_multiple_skeleton
 
 draw_detections = False
-draw_3dpose = True # TODO: make 3d plot faster
+draw_3dpose = False # TODO: make 3d plot faster
+
+Output = False  # Not working
 
 # Camera parameters for the deprojection
 # TODO: Correct the deprojection function to properly transform the joints to 3D
@@ -17,17 +19,18 @@ pose_model_path='models/mobile_human_pose_working_well_256x256.onnx'
 pose_estimator = MobileHumanPose(pose_model_path, focal_length, principal_points)
 
 # Initialize person detector
-detector_model_path='models/model_float32.onnx' 
+detector_model_path='models/yolov5s.onnx' 
 person_detector = YoloV5s(detector_model_path, conf_thres=0.45, iou_thres=0.4)
 
 # Initialize video
-# cap = cv2.VideoCapture("video.mp4")
+cap = cv2.VideoCapture("C:/Users/HeMu/Videos/24-11-8_Pigeons_1.mp4")
 
-videoUrl = 'https://youtu.be/SJ6f2TnHZBc'
-cap = cap_from_youtube(videoUrl)
-cap.set(cv2.CAP_PROP_POS_MSEC, 1*60000+30000) # Skip inital frames
+# videoUrl = 'https://youtu.be/SJ6f2TnHZBc'
+# cap = cap_from_youtube(videoUrl)
+cap.set(cv2.CAP_PROP_POS_MSEC, 1*60000) # Skip inital frames
 
-#out = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 30, (3840,720))
+if Output:
+    out = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 30, (960, 280))
 
 cv2.namedWindow("Estimated pose", cv2.WINDOW_NORMAL)
 
@@ -72,7 +75,7 @@ while cap.isOpened():
 
             # Draw heatmap
             heatmap_viz_img = draw_heatmap(heatmap_viz_img, img_heatmap)
-
+            
             # Draw 3D pose
             if draw_3dpose:
                 vis_kps = np.array(pose_3d_list)
@@ -83,7 +86,8 @@ while cap.isOpened():
             else:
                 combined_img = np.hstack((heatmap_viz_img, pose_img))
 
-            #out.write(combined_img)
+            if Output:
+                out.write(combined_img)
             cv2.imshow("Estimated pose", combined_img)
 
         else:
@@ -101,4 +105,5 @@ while cap.isOpened():
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-#out.release()
+if Output:
+    out.release()
